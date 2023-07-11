@@ -1,67 +1,69 @@
-import React from "react";
-import '../index.css'
+import React, { useEffect, useState } from "react";
+import "../index.css";
 import { database, auth } from "../firebase";
+import firebase from "firebase";
 
+const MyReservations = () => {
+  const [events, setEvents] = useState([]);
 
-class AppointmentLists extends React.Component{
+  useEffect(() => {
+    const subscriber = firebase
+      .firestore()
+      .collection("appointments")
+      .where("docId", "==", auth.currentUser.uid)
+      // .orderBy("start", "asc")
+      .onSnapshot((querySnapshot) => {
+        const list = [];
+        querySnapshot.forEach((documentSnapshot) => {
+          list.push({
+            ...documentSnapshot.data(),
+            key: documentSnapshot.id,
+          });
+        });
 
-  state = {
-      history: [],
-      cpt: 0
-  }
+        setEvents(list);
+        console.log({ list });
+      });
 
-  componentDidMount(){
-    const dbRef = database.ref('appointments-lists/' + auth.currentUser.uid);
-    const post = dbRef.orderByKey();
-    const history = [];
-    post.once("value", snap => {
-        snap.forEach(child => {
-            history.push(child.val());
-        })
-        this.setState({history:history});
-    })
-    
-  }  
+    return () => subscriber();
+  }, []);
 
-  render(){
-    return (
-        <div className="content">
-          <div className="content">
-            <div className="col">
-              <div className="row">
-                <div className="col mb-3">
-                  <div className="card">
-                    <table className="content-table"> 
-                      <thead>
+  return (
+    <div className="content">
+      <div className="content">
+        <div className="col">
+          <div className="row">
+            <div className="col mb-3">
+              <div className="card">
+                <table className="content-table">
+                  <thead>
+                    <tr>
+                      <th>Id</th>
+                      <th>Patient Name</th>
+                      <th>Date</th>
+                      <th>Start time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {events?.map(({ day, title, start_Date }, index) => {
+                      return (
                         <tr>
-                          <th>Id</th>
-                          <th>Name</th>
-                          <th>Date</th>
-                          <th>Start time</th>
+                          <td>{++index}</td>
+                          <td>{title}</td>
+                          <td>{day}</td>
+                          <td>{start_Date}</td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {this.state.history.map(({day, name, start_Date}, index) => {
-                          
-                          return (
-                            <tr>
-                              <td>{++index}</td>
-                              <td>{name}</td>
-                              <td>{day}</td>
-                              <td>{start_Date}</td>
-                            </tr>
-                          )
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
         </div>
-      );
-  }
-}
+      </div>
+    </div>
+  );
+};
 
-export default AppointmentLists;
+export default MyReservations;

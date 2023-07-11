@@ -5,9 +5,9 @@ import { useAuth } from "../contexts/Auth";
 import { useHistory } from "react-router-dom";
 
 export default function Register() {
-  const nomRef = useRef();
-  const prenomRef = useRef();
-  const adresseRef = useRef();
+  const nameRef = useRef();
+  const prenameRef = useRef();
+  const addressRef = useRef();
   const telRef = useRef();
   const emailRef = useRef();
   const passwordRef = useRef();
@@ -16,6 +16,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
   const history = useHistory();
+  const [role, setRole] = useState("patient");
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -30,10 +31,11 @@ export default function Register() {
       await signup(
         emailRef.current.value,
         passwordRef.current.value,
-        nomRef.current.value,
-        prenomRef.current.value,
-        adresseRef.current.value,
-        telRef.current.value
+        nameRef.current.value,
+        prenameRef.current.value,
+        addressRef.current.value,
+        telRef.current.value,
+        role
       );
       alert("Account Created Successfuly !!!");
       history.push("/login");
@@ -104,7 +106,7 @@ export default function Register() {
                           <input
                             className="form-control"
                             type="text"
-                            ref={prenomRef}
+                            ref={prenameRef}
                             placeholder="John"
                             required
                           />
@@ -116,7 +118,7 @@ export default function Register() {
                           <input
                             className="form-control"
                             type="text"
-                            ref={nomRef}
+                            ref={nameRef}
                             placeholder="Smith"
                             required
                           />
@@ -130,7 +132,7 @@ export default function Register() {
                           <input
                             className="form-control"
                             type="text"
-                            ref={adresseRef}
+                            ref={addressRef}
                             placeholder="Ain Chock, Casa"
                             required
                           />
@@ -149,6 +151,22 @@ export default function Register() {
                         </div>
                       </div>
                     </div>
+
+                    <Form.Group controlId="exampleForm.ControlSelect1">
+                      <Form.Label>Select Role</Form.Label>
+                      <Form.Control
+                        as="select"
+                        onChange={(e) => {
+                          const role = e.target.value;
+                          setRole(role);
+                          console.log({ role });
+                        }}
+                      >
+                        <option value={"patient"}>Patient</option>
+                        <option value={"doctor"}>Doctor</option>
+                      </Form.Control>
+                    </Form.Group>
+
                     <div className="otherProjects">
                       <Button
                         disabled={loading}
